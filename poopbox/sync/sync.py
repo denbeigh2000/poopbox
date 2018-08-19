@@ -33,18 +33,20 @@ class SyncTarget():
         yield self
         self.pull()
 
-    def push(self) -> None:
+    def push(self, files: Optional[Iterable[Text]] = None) -> None:
         LOG.info('pushing to %s', self.hostname)
-        return self._push(self.hostname, self.poopdir, self.remote_dir, self.excludes)
+        return self._push(self.hostname, self.poopdir, self.remote_dir, self.excludes, files)
 
-    def pull(self) -> None:
+    def pull(self, files: Optional[Iterable[Text]] = None) -> None:
         LOG.info('pulling from %s', self.hostname)
-        return self._pull(self.hostname, self.poopdir, self.remote_dir, self.excludes)
+        return self._pull(self.hostname, self.poopdir, self.remote_dir, self.excludes, files)
 
     def _push(self, hostname: Text, local_dir: Text, remote_dir: Text,
-              exclude_dirs: Optional[Iterable[Text]]) -> None:
+              exclude_dirs: Optional[Iterable[Text]],
+              files: Optional[Iterable[Text]] = None) -> None:
         raise NotImplementedError('_push() must be subclassed')
 
     def _pull(self, hostname: Text, local_dir: Text, remote_dir: Text,
-              exclude_dirs: Optional[Iterable[Text]]) -> None:
+              exclude_dirs: Optional[Iterable[Text]],
+              files: Optional[Iterable[Text]] = None) -> None:
         raise NotImplementedError('_pull() must be subclassed')
