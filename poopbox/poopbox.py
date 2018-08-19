@@ -3,8 +3,8 @@
 import sys
 from typing import List, Optional, Sequence, Text, Tuple
 
-from poopbox.run import RunError, RunTarget
-from poopbox.sync import SyncError, SyncTarget
+from poopbox.run.run import RunError, RunTarget
+from poopbox.sync.sync import SyncError, SyncTarget
 
 class Target(object):
     def __init__(self, run_target: RunTarget, sync_target: SyncTarget) -> None:

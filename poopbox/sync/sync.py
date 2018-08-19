@@ -5,7 +5,7 @@ import logging
 import os.path
 import sys
 import subprocess
-from typing import List, Optional, Sequence, Text
+from typing import List, Optional, Iterable, Text
 
 log = logging.getLogger('sync.py')
 log.setLevel(logging.DEBUG)
@@ -19,14 +19,15 @@ class SyncError(Exception):
 
 class SyncTarget(object):
     def __init__(self, hostname: Text, local_dir: Text, remote_dir: Text,
-            excludes: Optional[Sequence[Text]]=None) -> None:
+            excludes: Optional[Iterable[Text]]=None) -> None:
         self.hostname = hostname
         self.local_dir = _format_dir(local_dir)
         self.remote_dir = _format_dir(remote_dir)
 
-        self.excludes = excludes
+        if excludes is not None:
+            self.excludes = list(excludes)
 
-    def set_excludes(self, excludes: Sequence[Text]) -> None:
+    def set_excludes(self, excludes: Iterable[Text]) -> None:
         if self.excludes:
             self.excludes.extend(excludes)
         else:
@@ -45,27 +46,27 @@ class SyncTarget(object):
         return self._pull(self.hostname, self.local_dir, self.remote_dir, self.excludes)
 
     def _push(self, hostname: Text, local_dir: Text, remote_dir: Text,
-            exclude_dirs: Optional[Sequence[Text]]) -> None:
+            exclude_dirs: Optional[Iterable[Text]]) -> None:
         raise NotImplementedError('_push() must be subclassed')
 
     def _pull(self, hostname: Text, local_dir: Text, remote_dir: Text,
-            exclude_dirs: Optional[Sequence[Text]]) -> None:
+            exclude_dirs: Optional[Iterable[Text]]) -> None:
         raise NotImplementedError('_pull() must be subclassed')
 
 class RSyncSyncTarget(SyncTarget):
     def _push(self, hostname: Text, local_dir: Text, remote_dir: Text,
-            exclude_dirs: Optional[Sequence[Text]]) -> None:
+            exclude_dirs: Optional[Iterable[Text]]) -> None:
         src = local_dir
         sink = '{}:{}'.format(hostname, remote_dir)
         return self._exec(src, sink, exclude_dirs)
 
     def _pull(self, hostname: Text, local_dir: Text, remote_dir: Text,
-            exclude_dirs: Optional[Sequence[Text]]) -> None:
+            exclude_dirs: Optional[Iterable[Text]]) -> None:
         src = '{}:{}'.format(hostname, remote_dir)
         sink = local_dir
         return self._exec(src, sink, exclude_dirs)
 
-    def _exec(self, src: Text, sink: Text, excl: Optional[Sequence[Text]]) -> None:
+    def _exec(self, src: Text, sink: Text, excl: Optional[Iterable[Text]]) -> None:
         excludes = [
             '--exclude={}'.format(x)
             for x in excl
