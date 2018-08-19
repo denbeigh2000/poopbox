@@ -21,11 +21,19 @@ class Target():
         self.sync_target.set_excludes(self.excludes)
         self.sync_target.set_poopdir(poopdir)
 
+    def init(self) -> int:
+        try:
+            self.run_target.run(['echo', 'poopbox is ready to rock n\\\' roll!'])
+
+        except RunError as ex:
+            LOG.error('poopbox was not able to successfully run on the remote '
+                      'workstation: %s', ex)
+            raise
+
     def run(self, argv: List[Text]) -> int:
         """
         run executes the given command on the configured RunTarget
         """
-
         try:
             with self.sync_target.sync():
                 return self.run_target.run(argv)

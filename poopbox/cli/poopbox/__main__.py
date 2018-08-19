@@ -24,6 +24,9 @@ def configure_pushpull(is_push: bool, parser: argparse.Action):
     sparser.add_argument('files', nargs='*', default=None, help='files to be transferred')
     sparser.set_defaults(func=go)
 
+def handle_init(target: Target, args: argparse.Namespace):
+    return target.init()
+
 def handle_shell(target: Target, args: argparse.Namespace):
     return target.shell()
 
@@ -35,12 +38,16 @@ def setup_parser() -> argparse.Namespace:
     subparsers = parser.add_subparsers()
 
     shell_parser = subparsers.add_parser('shell', help='Open an interactive shell in your '
-                                                        'remote build directory')
+                                                       'remote build directory')
     shell_parser.set_defaults(func=handle_shell)
 
     shell_parser = subparsers.add_parser('sync', help='Synchronise any changes between your '
                                          'local and remote environments')
     shell_parser.set_defaults(func=handle_sync)
+
+    shell_parser = subparsers.add_parser('init', help='Ensures your remote environment is reachable'
+                                                      'and the build directory exists.')
+    shell_parser.set_defaults(func=handle_init)
 
     configure_pushpull(True, subparsers)
     configure_pushpull(False, subparsers)
