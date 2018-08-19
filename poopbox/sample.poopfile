@@ -11,8 +11,8 @@ target:
   run:
     type: ssh
     opts:
-      pwd: build/poopbox
       hostname: YOUR_BUILD_MACHINE
+      remote_dir: build/poopbox
 
   sync:
     type: rsync

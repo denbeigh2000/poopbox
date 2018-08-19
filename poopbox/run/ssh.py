@@ -14,8 +14,8 @@ from poopbox.run.run import Command, RunTarget
 LOG = logging.getLogger('ssh.py')
 
 class SSHRunTarget(RunTarget):
-    def __init__(self, pwd: Text, hostname: Text) -> None:
-        super().__init__(pwd)
+    def __init__(self, remote_dir: Text, hostname: Text) -> None:
+        super().__init__(remote_dir)
 
         self.hostname = hostname
 
@@ -33,20 +33,20 @@ class SSHRunTarget(RunTarget):
         LOG.info('disconnected from to %s', self.hostname)
 
 
-    def _shell(self, pwd: Text) -> None:
-        remote_args = ['cd', pwd, '&&', 'exec', '$SHELL', '-l']
+    def _shell(self) -> None:
+        remote_args = ['cd', self.remote_dir, '&&', 'exec', '$SHELL', '-l']
         args = ['ssh', '-t', self.hostname, ' '.join(remote_args)]
         proc = subprocess.Popen(args, stdin=sys.stdin, stdout=sys.stdout,
                                 stderr=sys.stderr)
         sys.stdin.flush()
         proc.wait()
 
-    def _run(self, argv: Command, pwd: Text) -> int:
+    def _run(self, argv: Command) -> int:
         with self._session() as client:
 
             LOG.info('executing %s on %s over ssh', argv, self.hostname)
-            remote_cmd = 'mkdir -p {pwd} && cd {pwd} && {cmd}'.format(
-                pwd=pwd, cmd=' '.join(argv))
+            remote_cmd = 'mkdir -p {remote_dir} && cd {remote_dir} && {cmd}'.format(
+                remote_dir=self.remote_dir, cmd=' '.join(argv))
             cmd = ['sh', '-c', '"{}"'.format(remote_cmd)]
             code = self._run_paramiko_cmd(client, ' '.join(cmd))
 

@@ -11,22 +11,18 @@ from poopbox.sync import SyncTarget, SyncError
 LOG = logging.getLogger('rsync.py')
 
 class RSyncSyncTarget(SyncTarget):
-    def _push(self, hostname: Text, local_dir: Text, remote_dir: Text,
-              exclude_dirs: Optional[Iterable[Text]],
-              files: Optional[Iterable[Text]] = None) -> None:
-        srcs = self._join_srcs(local_dir, files)
-        sink = '{}:{}'.format(hostname, remote_dir)
-        return self._exec(srcs, sink, exclude_dirs)
+    def _push(self, files: Optional[Iterable[Text]] = None) -> None:
+        srcs = self._join_srcs(self.poopdir, files)
+        sink = '{}:{}'.format(self.hostname, self.remote_dir)
+        return self._exec(srcs, sink, self.excludes)
 
-    def _pull(self, hostname: Text, local_dir: Text, remote_dir: Text,
-              exclude_dirs: Optional[Iterable[Text]],
-              files: Optional[Iterable[Text]] = None) -> None:
+    def _pull(self, files: Optional[Iterable[Text]] = None) -> None:
         srcs = [
-            '{}:{}'.format(hostname, src)
-            for src in self._join_srcs(remote_dir, files)
+            '{}:{}'.format(self.hostname, src)
+            for src in self._join_srcs(self.remote_dir, files)
         ]
-        sink = local_dir
-        return self._exec(srcs, sink, exclude_dirs)
+        sink = self.poopdir
+        return self._exec(srcs, sink, self.excludes)
 
     @staticmethod
     def _exec(srcs: Iterable[Text], sink: Text,

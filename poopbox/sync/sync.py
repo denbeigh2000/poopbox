@@ -17,6 +17,9 @@ class SyncTarget():
         self.hostname = hostname
         self.remote_dir = format_dir(remote_dir)
 
+        # Set by containing Target
+        self.poopdir = None  # type: Optional[Text]
+
         self.excludes = []  # type: List[Text]
 
     def set_excludes(self, excludes: Iterable[Text]) -> None:
@@ -34,19 +37,19 @@ class SyncTarget():
         self.pull()
 
     def push(self, files: Optional[Iterable[Text]] = None) -> None:
+        assert self.poopdir is not None, 'Module not initialised by a Target!'
+
         LOG.info('pushing to %s', self.hostname)
-        return self._push(self.hostname, self.poopdir, self.remote_dir, self.excludes, files)
+        return self._push(files)
 
     def pull(self, files: Optional[Iterable[Text]] = None) -> None:
-        LOG.info('pulling from %s', self.hostname)
-        return self._pull(self.hostname, self.poopdir, self.remote_dir, self.excludes, files)
+        assert self.poopdir is not None, 'Module not initialised by a Target!'
 
-    def _push(self, hostname: Text, local_dir: Text, remote_dir: Text,
-              exclude_dirs: Optional[Iterable[Text]],
-              files: Optional[Iterable[Text]] = None) -> None:
+        LOG.info('pulling from %s', self.hostname)
+        return self._pull(files)
+
+    def _push(self, files: Optional[Iterable[Text]] = None) -> None:
         raise NotImplementedError('_push() must be subclassed')
 
-    def _pull(self, hostname: Text, local_dir: Text, remote_dir: Text,
-              exclude_dirs: Optional[Iterable[Text]],
-              files: Optional[Iterable[Text]] = None) -> None:
+    def _pull(self, files: Optional[Iterable[Text]] = None) -> None:
         raise NotImplementedError('_pull() must be subclassed')
