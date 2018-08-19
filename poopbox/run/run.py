@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 import logging
-from typing import Iterable, Text, Tuple
+from typing import List, Text, Tuple
 
 LOG = logging.getLogger('run.py')
 LOG.setLevel(logging.DEBUG)
 
-Command = Iterable[Text]
+Command = List[Text]
 
 class RunError(Exception):
     pass

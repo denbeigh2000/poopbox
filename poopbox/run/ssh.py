@@ -19,8 +19,8 @@ class SSHRunTarget(RunTarget):
             ssh = SSHClient()
             ssh.load_system_host_keys()
             ssh.connect(hostname=self.hostname)
-            command = 'sh -c "cd {}; {}"'.format(pwd, ''.join(argv))
-            code, out, err = self._run_paramiko_cmd(ssh, command, get_pty=True)
+            command = 'bash -c "cd {}; {}"'.format(pwd, ' '.join(argv))
+            code, out, err = self._run_paramiko_cmd(ssh, command)
 
         finally:
             ssh.close()
@@ -29,11 +29,11 @@ class SSHRunTarget(RunTarget):
 
     # https://stackoverflow.com/a/21105626
     @staticmethod
-    def _run_paramiko_cmd(ssh, command, *args, **kwargs):  # type: ignore
+    def _run_paramiko_cmd(ssh, command):  # type: ignore
         transport = ssh.get_transport()
         chan = transport.open_session()
 
-        chan.exec_command(command, *args, **kwargs)
+        chan.exec_command(command)
 
         buff_size = 1024
         stdout = ""
@@ -50,9 +50,9 @@ class SSHRunTarget(RunTarget):
         exit_status = chan.recv_exit_status()
         # Need to gobble up any remaining output after program terminates...
         while chan.recv_ready():
-            stdout += chan.recv(buff_size)
+            stdout += chan.recv(buff_size).decode('utf-8')
 
         while chan.recv_stderr_ready():
-            stderr += chan.recv_stderr(buff_size)
+            stderr += chan.recv_stderr(buff_size).decode('utf-8')
 
         return exit_status, stdout or None, stderr or None

@@ -22,8 +22,7 @@ class SyncTarget():
         self.local_dir = _format_dir(local_dir)
         self.remote_dir = _format_dir(remote_dir)
 
-        if excludes is not None:
-            self.excludes = list(excludes)
+        self.excludes = list(excludes) if excludes is not None else []
 
     def set_excludes(self, excludes: Iterable[Text]) -> None:
         if self.excludes:

@@ -2,12 +2,15 @@
 
 from setuptools import setup, find_namespace_packages
 
-print(find_namespace_packages('poopbox'))
-
 setup(
     name='poopbox',
     version='0.0dev',
     # packages=find_namespace_packages('poopbox'),
-    packages=['poopbox.run', 'poopbox.sync'],
-    install_package_data=True,
+    packages=['poopbox', 'poopbox.run', 'poopbox.sync', 'poopbox.cli'],
+    entry_points={
+        'console_scripts': [
+            'p = poopbox.cli.pee.__main__:main',
+            'pee = poopbox.cli.pee.__main__:main'
+        ]
+    },
 )
