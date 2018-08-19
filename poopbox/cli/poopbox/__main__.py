@@ -12,26 +12,38 @@ def setup_logging() -> None:
     logger.setLevel(logging.WARNING)
     logger.addHandler(handler)
 
-def configure_pushpull(is_push: bool, parser: argparse.ArgumentParser):
+def configure_pushpull(is_push: bool, parser: argparse.Action):
     def go(target: Target, args: argparse.Namespace):
         fn = target.push if is_push else target.pull
         return fn(args.files)
 
-    parser.add_argument('files', nargs='*', default=None)
-    parser.set_defaults(func=go)
+    help_text = 'Push any changes from here to the remote workstation' \
+        if is_push else 'Pull any changes from the remote workstation to here'
+
+    sparser = parser.add_parser('push' if is_push else 'pull', help=help_text)
+    sparser.add_argument('files', nargs='*', default=None, help='files to be transferred')
+    sparser.set_defaults(func=go)
 
 def handle_shell(target: Target, args: argparse.Namespace):
     return target.shell()
+
+def handle_sync(target: Target, args: argparse.Namespace):
+    return target.sync()
 
 def setup_parser() -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog='poopbox')
     subparsers = parser.add_subparsers()
 
-    shell_parser = subparsers.add_parser('shell')
+    shell_parser = subparsers.add_parser('shell', help='Open an interactive shell in your '
+                                                        'remote build directory')
     shell_parser.set_defaults(func=handle_shell)
 
-    configure_pushpull(True, subparsers.add_parser('push'))
-    configure_pushpull(False, subparsers.add_parser('pull'))
+    shell_parser = subparsers.add_parser('sync', help='Synchronise any changes between your '
+                                         'local and remote environments')
+    shell_parser.set_defaults(func=handle_sync)
+
+    configure_pushpull(True, subparsers)
+    configure_pushpull(False, subparsers)
 
     return parser.parse_args()
 
