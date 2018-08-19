@@ -8,7 +8,6 @@ from typing import Optional, Iterable, Text
 from poopbox.sync import SyncTarget, SyncError
 
 LOG = logging.getLogger('rsync.py')
-LOG.setLevel(logging.DEBUG)
 
 class RSyncSyncTarget(SyncTarget):
     def _push(self, hostname: Text, local_dir: Text, remote_dir: Text,
@@ -31,6 +30,7 @@ class RSyncSyncTarget(SyncTarget):
         ] if excl else []
 
         argv = ['rsync', '-a'] + excludes + [src, sink]
+        LOG.info('executing rsync with %s', argv)
         proc = subprocess.run(argv)
         if proc.stdout is not None:
             print(proc.stdout)

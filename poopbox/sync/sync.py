@@ -2,33 +2,30 @@
 
 from contextlib import contextmanager
 import logging
-import os.path
-from typing import Optional, Iterable, Text
+from typing import Iterable, List, Optional, Text
+
+from poopbox.dir_utils import format_dir
 
 LOG = logging.getLogger('sync.py')
-LOG.setLevel(logging.DEBUG)
-
-def _format_dir(dir_: Text) -> Text:
-    return os.path.normpath(dir_) + '/'
 
 class SyncError(Exception):
     pass
 
 
 class SyncTarget():
-    def __init__(self, hostname: Text, local_dir: Text, remote_dir: Text,
-                 excludes: Optional[Iterable[Text]] = None) -> None:
+    def __init__(self, hostname: Text, remote_dir: Text) -> None:
         self.hostname = hostname
-        self.local_dir = _format_dir(local_dir)
-        self.remote_dir = _format_dir(remote_dir)
+        self.remote_dir = format_dir(remote_dir)
 
-        self.excludes = list(excludes) if excludes is not None else []
+        self.excludes = []  # type: List[Text]
 
     def set_excludes(self, excludes: Iterable[Text]) -> None:
-        if self.excludes:
+        LOG.info('extending excludes with %s', excludes)
+        if excludes:
             self.excludes.extend(excludes)
-        else:
-            self.excludes = list(excludes)
+
+    def set_poopdir(self, poopdir: Text):
+        self.poopdir = format_dir(poopdir)
 
     @contextmanager
     def sync(self):  # type: ignore
@@ -37,10 +34,12 @@ class SyncTarget():
         self.pull()
 
     def push(self) -> None:
-        return self._push(self.hostname, self.local_dir, self.remote_dir, self.excludes)
+        LOG.info('pushing to %s', self.hostname)
+        return self._push(self.hostname, self.poopdir, self.remote_dir, self.excludes)
 
     def pull(self) -> None:
-        return self._pull(self.hostname, self.local_dir, self.remote_dir, self.excludes)
+        LOG.info('pulling from %s', self.hostname)
+        return self._pull(self.hostname, self.poopdir, self.remote_dir, self.excludes)
 
     def _push(self, hostname: Text, local_dir: Text, remote_dir: Text,
               exclude_dirs: Optional[Iterable[Text]]) -> None:
