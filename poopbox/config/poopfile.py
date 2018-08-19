@@ -1,28 +1,30 @@
 #!/usr/bin/env python3
 
 import os
-from pathlib import PurePath
+from pathlib import Path
 from typing import Text
-
-from poopbox import Target
-from poopbox.run.ssh import SSHRunTarget
-from poopbox.sync.rsync import RSyncSyncTarget
 
 import yaml
 
+from poopbox import Target
+from poopbox.run.targets import SSHRunTarget
+from poopbox.sync.targets import RSyncSyncTarget
+
+# pylint: disable=pointless-string-statement
 """
 Sample poopfile format
 target:
     run:
         type: ssh
         opts:
-           (kwargs) 
+           (kwargs)
 
     sync:
         type: rsync
         opts:
             (kwargs)
 """
+# pylint: enable=pointless-string-statement
 
 
 
@@ -51,18 +53,22 @@ def target_from_dict(opts):  # type: ignore
     return Target(run_target, sync_target)
 
 def find_poopfile() -> Text:
-    p = PurePath(os.getcwd())
-    while str(p) != '/':
-        cand = PurePath(str(p), '.poopfile')
+    cand_dir = Path(os.getcwd())
+    while True:
+        cand = cand_dir.joinpath('.poopfile')
         if cand.exists():
             return str(cand)
 
-    raise RuntimeError('No poopfile found, traversed up to {}'.format(str(p)))
+        if str(cand_dir) == cand_dir.root:
+            raise RuntimeError('traversed up to root without finding a poopfile, bailing out')
+
+        cand_dir = cand_dir.parent
+
 
 def find_and_parse_poopfile() -> Target:
     poopfile = find_poopfile()
     with open(poopfile, 'r') as f:
         data = f.read()
 
-    config = yaml.loads(f)
+    config = yaml.load(data)
     return target_from_dict(config)

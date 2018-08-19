@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
-from poopbox.run.run import Command, RunTarget
+import time
+from typing import Text, Tuple
 
 from paramiko import SSHClient  # type: ignore
 
-from typing import Sequence, Text, Tuple
+from poopbox.run.run import Command, RunTarget
+
 
 class SSHRunTarget(RunTarget):
     def __init__(self, pwd: Text, hostname: Text) -> None:
@@ -31,7 +33,7 @@ class SSHRunTarget(RunTarget):
         transport = ssh.get_transport()
         chan = transport.open_session()
 
-        chan.exec_command(command)
+        chan.exec_command(command, *args, **kwargs)
 
         buff_size = 1024
         stdout = ""
