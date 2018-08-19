@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+from contextlib import contextmanager
 import logging
 import sys
+import subprocess
 import time
 from typing import Text, Tuple
 
@@ -17,31 +19,46 @@ class SSHRunTarget(RunTarget):
 
         self.hostname = hostname
 
-    def _run(self, argv: Command, pwd: Text) -> int:
-        try:
-            ssh = SSHClient()
-            ssh.load_system_host_keys()
-            LOG.info('connecting to %s over ssh', self.hostname)
-            ssh.connect(hostname=self.hostname)
-            LOG.info('executing %s on %s over ssh', argv, self.hostname)
-            command = 'bash -c "cd {}; {}"'.format(pwd, ' '.join(argv))
-            code = self._run_paramiko_cmd(ssh, command)
+    @contextmanager
+    def _session(self):  # type: ignore
+        client = SSHClient()
+        client.load_system_host_keys()
+        LOG.info('connecting to %s over ssh', self.hostname)
+        client.connect(hostname=self.hostname)
 
-        finally:
-            ssh.close()
-            LOG.info('disconnected from to %s', self.hostname)
+        yield client
+
+        LOG.info('closing ssh session with %s', self.hostname)
+        client.close()
+        LOG.info('disconnected from to %s', self.hostname)
+
+
+    def _shell(self, pwd: Text) -> None:
+        remote_args = ['cd', pwd, '&&', 'exec', '$SHELL', '-l']
+        args = ['ssh', '-t', self.hostname, ' '.join(remote_args)]
+        proc = subprocess.Popen(args, stdin=sys.stdin, stdout=sys.stdout,
+                                stderr=sys.stderr)
+        sys.stdin.flush()
+        proc.wait()
+
+    def _run(self, argv: Command, pwd: Text) -> int:
+        with self._session() as client:
+
+            LOG.info('executing %s on %s over ssh', argv, self.hostname)
+            remote_cmd = 'mkdir -p {pwd} && cd {pwd} && {cmd}'.format(
+                pwd=pwd, cmd=' '.join(argv))
+            cmd = ['sh', '-c', '"{}"'.format(remote_cmd)]
+            code = self._run_paramiko_cmd(client, ' '.join(cmd))
 
         return code
 
     # https://stackoverflow.com/a/21105626
     @staticmethod
-    def _run_paramiko_cmd(ssh, command):  # type: ignore
-        transport = ssh.get_transport()
+    def _run_paramiko_cmd(client, command):  # type: ignore
+        transport = client.get_transport()
         chan = transport.open_session()
 
         chan.exec_command(command)
-
-        buff_size = 1024
 
         while not chan.exit_status_ready():
             time.sleep(.25)

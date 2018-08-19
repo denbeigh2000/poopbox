@@ -10,7 +10,8 @@ setup(
     entry_points={
         'console_scripts': [
             'p = poopbox.cli.pee.__main__:main',
-            'pee = poopbox.cli.pee.__main__:main'
+            'pee = poopbox.cli.pee.__main__:main',
+            'poopbox = poopbox.cli.poopbox.__main__:main',
         ]
     },
 )

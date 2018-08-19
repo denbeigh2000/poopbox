@@ -37,3 +37,12 @@ class Target():
         except RunError as ex:
             LOG.error('Received error while running command: %s', ex)
             raise
+
+    def push(self, files: Optional[Iterable[Text]] = None) -> None:
+        return self.sync_target.push(files)
+
+    def pull(self, files: Optional[Iterable[Text]] = None) -> None:
+        return self.sync_target.pull(files)
+
+    def shell(self):
+        return self.run_target.shell()
