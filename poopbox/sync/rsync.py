@@ -13,12 +13,12 @@ LOG = logging.getLogger('rsync.py')
 class RSyncSyncTarget(SyncTarget):
     def _push(self, files: Optional[Iterable[Text]] = None) -> None:
         srcs = self._join_srcs(self.poopdir, files)
-        sink = '{}:{}'.format(self.hostname, self.remote_dir)
+        sink = '{}:{}'.format(self.remote_host, self.remote_dir)
         return self._exec(srcs, sink, self.excludes)
 
     def _pull(self, files: Optional[Iterable[Text]] = None) -> None:
         srcs = [
-            '{}:{}'.format(self.hostname, src)
+            '{}:{}'.format(self.remote_host, src)
             for src in self._join_srcs(self.remote_dir, files)
         ]
         sink = self.poopdir
@@ -32,7 +32,7 @@ class RSyncSyncTarget(SyncTarget):
             for x in excl
         ] if excl else []
 
-        argv = ['rsync', '-a', '--delete'] + excludes + srcs + [sink]
+        argv = ['rsync', '-a', '--delete'] + excludes + list(srcs) + [sink]
         LOG.info('executing rsync with %s', argv)
         proc = subprocess.run(argv)
         if proc.stdout is not None:
