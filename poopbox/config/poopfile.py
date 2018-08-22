@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import importlib
 import os
 try:
     from pathlib import Path
@@ -42,7 +43,7 @@ def find_and_parse_poopfile():
     if not config_type or config_type in ('RSyncSSH', 'RSyncSSHTarget'):
         TargetClass = RSyncSSHTarget
     else:
-        raise RuntimeError('Only RSyncSSHTarget supported for now')
+        TargetClass = importlib.import_module(config_type)
 
     target = TargetClass(poopdir)
     target.configure(config)
