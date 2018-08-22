@@ -1,7 +1,7 @@
 # vi:syntax=yaml
 
 target: 'RSyncSSH'
-remote_dir: build/poopbox
+remote_dir: YOUR_REMOTE_DIRECTORY
 remote_host: YOUR_REMOTE_HOST
 excludes:
   - env
