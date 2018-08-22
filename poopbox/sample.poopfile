@@ -1,21 +1,12 @@
 # vi:syntax=yaml
 
-target:
-  excludes:
-    - env
-    - .poopfile
-    - .git
-    - '*egg_info*'
-    - '*__pycache__*'
-    - '*.mypy_cache*'
-  run:
-    type: ssh
-    opts:
-      hostname: YOUR_BUILD_MACHINE
-      remote_dir: build/poopbox
-
-  sync:
-    type: rsync
-    opts:
-      hostname: YOUR_BUILD_MACHINE
-      remote_dir: build/poopbox
+target: 'RSyncSSH'
+remote_dir: build/poopbox
+remote_host: YOUR_REMOTE_HOST
+excludes:
+  - env
+  - .poopfile
+  - .git
+  - '*egg_info*'
+  - '*__pycache__*'
+  - '*.mypy_cache*'
