@@ -3,7 +3,6 @@
 from contextlib import contextmanager
 import logging
 import sys
-import subprocess
 import time
 from typing import Text, Tuple
 
@@ -14,37 +13,28 @@ from poopbox.run.run import Command, RunTarget
 LOG = logging.getLogger('ssh.py')
 
 class SSHRunTarget(RunTarget):
-    def __init__(self, remote_dir: Text, hostname: Text) -> None:
-        super().__init__(remote_dir)
-
-        self.hostname = hostname
+    def __init__(self, remote_host: Text, remote_dir: Text) -> None:
+        self.remote_dir = remote_dir
+        self.remote_host = remote_host
 
     @contextmanager
     def _session(self):  # type: ignore
         client = SSHClient()
         client.load_system_host_keys()
-        LOG.info('connecting to %s over ssh', self.hostname)
-        client.connect(hostname=self.hostname)
+        LOG.info('connecting to %s over ssh', self.remote_host)
+        client.connect(hostname=self.remote_host)
 
         yield client
 
-        LOG.info('closing ssh session with %s', self.hostname)
+        LOG.info('closing ssh session with %s', self.remote_host)
         client.close()
-        LOG.info('disconnected from to %s', self.hostname)
+        LOG.info('disconnected from %s', self.remote_host)
 
-
-    def _shell(self) -> None:
-        remote_args = ['cd', self.remote_dir, '&&', 'exec', '$SHELL', '-l']
-        args = ['ssh', '-t', self.hostname, ' '.join(remote_args)]
-        proc = subprocess.Popen(args, stdin=sys.stdin, stdout=sys.stdout,
-                                stderr=sys.stderr)
-        sys.stdin.flush()
-        proc.wait()
 
     def _run(self, argv: Command) -> int:
         with self._session() as client:
 
-            LOG.info('executing %s on %s over ssh', argv, self.hostname)
+            LOG.info('executing %s on %s over ssh', argv, self.remote_host)
             remote_cmd = 'mkdir -p {remote_dir} && cd {remote_dir} && {cmd}'.format(
                 remote_dir=self.remote_dir, cmd=' '.join(argv))
             cmd = ['sh', '-c', '"{}"'.format(remote_cmd)]

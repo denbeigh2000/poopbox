@@ -2,13 +2,12 @@
 
 import os
 from pathlib import Path
-from typing import Text, Tuple
+from typing import Text, Tuple, Type
 
 import yaml
 
-from poopbox import Target
-from poopbox.run.targets import SSHRunTarget
-from poopbox.sync.targets import RSyncSyncTarget
+from poopbox.target import Target
+from poopbox.target.targets import RSyncSSHTarget
 
 # pylint: disable=pointless-string-statement
 """
@@ -27,14 +26,7 @@ target:
 # pylint: enable=pointless-string-statement
 
 
-
-RUN_TARGETS = {
-    'ssh': SSHRunTarget,
-}
-
-SYNC_TARGETS = {
-    'rsync': RSyncSyncTarget,
-}
+DEFAULT_TARGET_CLASS = RSyncSSHTarget  # type: Type[Target]
 
 def subtargets_from_dict(opts):
     target = opts['target']
@@ -73,9 +65,14 @@ def find_and_parse_poopfile() -> Target:
         data = file_.read()
 
     config = yaml.load(data)
+    config_type = config.pop('target', None)
 
+    if not config_type or config_type in ('RSyncSSH', 'RSyncSSHTarget'):
+        TargetClass = RSyncSSHTarget
+    else:
+        raise RuntimeError('Only RSyncSSHTarget supported for now')
 
-    (run_target, sync_target) = subtargets_from_dict(config)
-    excludes = config['target']['excludes']
+    target = TargetClass(poopdir)
+    target.configure(config)
 
-    return Target(run_target, sync_target, poopdir, excludes)
+    return target

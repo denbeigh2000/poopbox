@@ -4,7 +4,7 @@ import argparse
 import logging
 
 from poopbox.config.poopfile import find_and_parse_poopfile
-from poopbox import Target
+from poopbox.target import Target
 
 def setup_logging() -> None:
     logger = logging.getLogger()

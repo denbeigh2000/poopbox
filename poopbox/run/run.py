@@ -13,9 +13,6 @@ class RunError(Exception):
 
 
 class RunTarget():
-    def __init__(self, remote_dir: Text) -> None:
-        self.remote_dir = remote_dir
-
     def run(self, argv: Command) -> int:
         """
         run executes the given command on the remote target

@@ -13,39 +13,21 @@ class SyncError(Exception):
 
 
 class SyncTarget():
-    def __init__(self, hostname: Text, remote_dir: Text) -> None:
-        self.hostname = hostname
+    def __init__(self, poopdir: Text, remote_host: Text,
+                 remote_dir: Text,
+                 excludes: Optional[Iterable[Text]] = None) -> None:
+        self.poopdir = poopdir
         self.remote_dir = format_dir(remote_dir)
+        self.remote_host = remote_host
 
-        # Set by containing Target
-        self.poopdir = None  # type: Optional[Text]
-
-        self.excludes = []  # type: List[Text]
-
-    def set_excludes(self, excludes: Iterable[Text]) -> None:
-        LOG.info('extending excludes with %s', excludes)
-        if excludes:
-            self.excludes.extend(excludes)
-
-    def set_poopdir(self, poopdir: Text):
-        self.poopdir = format_dir(poopdir)
-
-    @contextmanager
-    def sync(self):  # type: ignore
-        self.push()
-        yield self
-        self.pull()
+        self.excludes = list(excludes) if excludes is not None else []
 
     def push(self, files: Optional[Iterable[Text]] = None) -> None:
-        assert self.poopdir is not None, 'Module not initialised by a Target!'
-
-        LOG.info('pushing to %s', self.hostname)
+        LOG.info('pushing to %s', self.remote_host)
         return self._push(files)
 
     def pull(self, files: Optional[Iterable[Text]] = None) -> None:
-        assert self.poopdir is not None, 'Module not initialised by a Target!'
-
-        LOG.info('pulling from %s', self.hostname)
+        LOG.info('pulling from %s', self.remote_host)
         return self._pull(files)
 
     def _push(self, files: Optional[Iterable[Text]] = None) -> None:
