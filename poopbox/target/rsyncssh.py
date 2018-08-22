@@ -13,12 +13,13 @@ class RSyncSSHTarget(Target):
     def _run_on_configure(self, config: Dict[Any, Any]) -> None:
         self.remote_host = config['remote_host']
         self.remote_dir = config['remote_dir']
+
         excludes = config.get('excludes', None)
 
-        self.rsync = RSyncSyncTarget(self.poopdir,
+        self._sync = RSyncSyncTarget(self.poopdir,
                 self.remote_host, self.remote_dir, excludes)
-        self.ssh = SSHRunTarget(self.remote_host, self.remote_dir)
-        self.shell = SSHShellTarget(self.remote_host, self.remote_dir)
+        self._run = SSHRunTarget(self.remote_host, self.remote_dir)
+        self._shell = SSHShellTarget(self.remote_host, self.remote_dir)
 
     def run(self, argv: List[Text]) -> int:
         """
@@ -26,7 +27,7 @@ class RSyncSSHTarget(Target):
         """
         try:
             self.push()
-            return self.ssh.run(argv)
+            return self._run.run(argv)
 
         except SyncError as ex:
             LOG.error('Received error while syncing: %s', ex)
@@ -40,10 +41,10 @@ class RSyncSSHTarget(Target):
             self.pull()
 
     def push(self, files: Optional[Iterable[Text]] = None) -> None:
-        return self.rsync.push(files)
+        return self._sync.push(files)
 
     def pull(self, files: Optional[Iterable[Text]] = None) -> None:
-        return self.rsync.pull(files)
+        return self._sync.pull(files)
 
     def shell(self):
-        return self.shell.shell()
+        return self._shell.shell()
