@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import logging
 from typing import Any, Dict, Iterable, Optional, List, Text
 
 from poopbox.run import RunError
@@ -8,6 +9,8 @@ from poopbox.shell.targets import SSHShellTarget
 from poopbox.sync import SyncError
 from poopbox.sync.targets import RSyncSyncTarget
 from poopbox.target import Target
+
+LOG = logging.getLogger('rsyncssh.py')
 
 class RSyncSSHTarget(Target):
     def _run_on_configure(self, config: Dict[Any, Any]) -> None:

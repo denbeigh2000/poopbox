@@ -32,7 +32,7 @@ class RSyncSyncTarget(SyncTarget):
             for x in excl
         ] if excl else []
 
-        argv = ['rsync', '-a', '--delete'] + excludes + srcs + [sink]
+        argv = ['rsync', '-a', '--delete'] + excludes + list(srcs) + [sink]
         LOG.info('executing rsync with %s', argv)
         proc = subprocess.run(argv)
         if proc.stdout is not None:

@@ -12,7 +12,7 @@ def setup_logging() -> None:
     logger.setLevel(logging.WARNING)
     logger.addHandler(handler)
 
-def configure_pushpull(is_push: bool, parser: argparse.Action):
+def configure_pushpull(is_push, parser):  # type: ignore
     def go(target: Target, args: argparse.Namespace):
         fn = target.push if is_push else target.pull
         return fn(args.files)
