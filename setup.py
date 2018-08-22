@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-from setuptools import setup, find_namespace_packages
+from setuptools import setup
 
 setup(
     name='poopbox',
     version='0.0dev',
-    # packages=find_namespace_packages('poopbox'),
     packages=['poopbox',
               'poopbox.run',
               'poopbox.sync',
