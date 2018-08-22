@@ -37,7 +37,7 @@ class SSHRunTarget(RunTarget):
         with self._session() as client:
             command = ['mkdir', '-p', self.remote_dir, '&&',
                         'cd', self.remote_dir, '&&'] + argv
-            cmd_str = ['sh', '-c', '"{}"'.format(' '.join(command))]
+            cmd_str = ['bash', '-c', '"{}"'.format(' '.join(command))]
 
             LOG.info('executing %s on %s over ssh', argv, self.remote_host)
             code = self._run_paramiko_cmd(client, ' '.join(cmd_str))

@@ -39,9 +39,12 @@ def setup_parser():
     parser = argparse.ArgumentParser(prog='poopbox')
     subparsers = parser.add_subparsers()
 
-    shell_parser = subparsers.add_parser('shell', help='Open an interactive shell in your '
-                                                       'remote build directory')
+    shell_parser = subparsers.add_parser('shell',
+            help='Open an interactive shell in your remote build directory')
     shell_parser.set_defaults(func=handle_shell)
+
+    ssh_parser = subparsers.add_parser('ssh', help='alias of "shell"')
+    ssh_parser.set_defaults(func=handle_shell)
 
     shell_parser = subparsers.add_parser('sync', help='Synchronise any changes between your '
                                          'local and remote environments')
