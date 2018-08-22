@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
-# pylint: disable=unused-import
+#!/usr/bin/env python
 
 from .rsync import RSyncSyncTarget

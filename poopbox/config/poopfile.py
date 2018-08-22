@@ -1,7 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import os
-from pathlib import Path
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
 from typing import Text, Tuple, Type
 
 import yaml
@@ -9,43 +12,11 @@ import yaml
 from poopbox.target import Target
 from poopbox.target.targets import RSyncSSHTarget
 
-# pylint: disable=pointless-string-statement
-"""
-Sample poopfile format
-target:
-    run:
-        type: ssh
-        opts:
-           (kwargs)
-
-    sync:
-        type: rsync
-        opts:
-            (kwargs)
-"""
-# pylint: enable=pointless-string-statement
-
 
 DEFAULT_TARGET_CLASS = RSyncSSHTarget  # type: Type[Target]
 
-def subtargets_from_dict(opts):
-    target = opts['target']
-
-    run = target['run']
-    sync = target['sync']
-
-    assert run['type'] in RUN_TARGETS, 'invalid run target type'
-    run_target_cons = RUN_TARGETS[run['type']]
-    run_target = run_target_cons(**run['opts'])
-
-    assert sync['type'] in SYNC_TARGETS, 'invalid sync target type'
-    sync_target_cons = SYNC_TARGETS[sync['type']]
-    sync_target = sync_target_cons(**sync['opts'])
-
-    return (run_target, sync_target)
-
-
-def find_poopfile() -> Tuple[Text, Text]:
+def find_poopfile():
+    # type: () -> Tuple[Text, Text]
     cand_dir = Path(os.getcwd())
     while True:
         cand = cand_dir.joinpath('.poopfile')
@@ -58,7 +29,8 @@ def find_poopfile() -> Tuple[Text, Text]:
         cand_dir = cand_dir.parent
 
 
-def find_and_parse_poopfile() -> Target:
+def find_and_parse_poopfile():
+    # type: () -> Target
     poopdir, poopfile = find_poopfile()
 
     with open(poopfile, 'r') as file_:

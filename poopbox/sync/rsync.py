@@ -1,8 +1,14 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+
+from __future__ import print_function
 
 import logging
-from pathlib import PurePath
-import subprocess
+try:
+    from pathlib import PurePath
+    import subprocess
+except ImportError:
+    from pathlib2 import PurePath
+    import subprocess32 as subprocess
 import sys
 from typing import Optional, Iterable, Text
 
@@ -11,12 +17,14 @@ from poopbox.sync import SyncTarget, SyncError
 LOG = logging.getLogger('rsync.py')
 
 class RSyncSyncTarget(SyncTarget):
-    def _push(self, files: Optional[Iterable[Text]] = None) -> None:
+    def _push(self, files=None):
+        # type: (Optional[Iterable[Text]]) -> None
         srcs = self._join_srcs(self.poopdir, files)
         sink = '{}:{}'.format(self.remote_host, self.remote_dir)
         return self._exec(srcs, sink, self.excludes)
 
-    def _pull(self, files: Optional[Iterable[Text]] = None) -> None:
+    def _pull(self, files=None):
+        # type: (Optional[Iterable[Text]]) -> None
         srcs = [
             '{}:{}'.format(self.remote_host, src)
             for src in self._join_srcs(self.remote_dir, files)
@@ -25,8 +33,8 @@ class RSyncSyncTarget(SyncTarget):
         return self._exec(srcs, sink, self.excludes)
 
     @staticmethod
-    def _exec(srcs: Iterable[Text], sink: Text,
-              excl: Optional[Iterable[Text]]) -> None:
+    def _exec(srcs, sink, excl=None):
+        # type: (Iterable[Text], Text, Optional[Iterable[Text]]) -> None
         excludes = [
             '--exclude={}'.format(x)
             for x in excl
@@ -46,10 +54,11 @@ class RSyncSyncTarget(SyncTarget):
             raise SyncError('exit status {} ({})'.format(proc.returncode, argv))
 
     @staticmethod
-    def _join_srcs(dir_: Text, files: Optional[Iterable[Text]]):
+    def _join_srcs(dir_, files=None):
+        # type: (Text, Optional[Iterable[Text]]) -> Iterable[Text]
         if not files:
             return [dir_]
 
         return [
-            str(PurePath(dir_, f)) for f in files
+            Text(PurePath(dir_, f)) for f in files
         ]

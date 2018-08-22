@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import argparse
 import logging
@@ -6,16 +6,18 @@ import logging
 from poopbox.config.poopfile import find_and_parse_poopfile
 from poopbox.target import Target
 
-def setup_logging() -> None:
+def setup_logging():
+    # type: () -> None
     logger = logging.getLogger()
     handler = logging.StreamHandler()
     logger.setLevel(logging.WARNING)
     logger.addHandler(handler)
 
 def configure_pushpull(is_push, parser):  # type: ignore
-    def go(target: Target, args: argparse.Namespace):
+    def go(target, args):
+        # type: (Target, argparse.Namespace) -> None
         fn = target.push if is_push else target.pull
-        return fn(args.files)
+        fn(args.files)
 
     help_text = 'Push any changes from here to the remote workstation' \
         if is_push else 'Pull any changes from the remote workstation to here'
@@ -24,13 +26,16 @@ def configure_pushpull(is_push, parser):  # type: ignore
     sparser.add_argument('files', nargs='*', default=None, help='files to be transferred')
     sparser.set_defaults(func=go)
 
-def handle_shell(target: Target, args: argparse.Namespace):
+def handle_shell(target, args):
+    # type: () -> int
     return target.shell()
 
-def handle_sync(target: Target, args: argparse.Namespace):
-    return target.sync()
+def handle_sync(target, args):
+    # type: () -> None
+    target.sync()
 
-def setup_parser() -> argparse.Namespace:
+def setup_parser():
+    # type: () -> argparse.Namespace
     parser = argparse.ArgumentParser(prog='poopbox')
     subparsers = parser.add_subparsers()
 
@@ -47,7 +52,8 @@ def setup_parser() -> argparse.Namespace:
 
     return parser.parse_args()
 
-def main() -> int:
+def main():
+    # type: () -> int
     target = find_and_parse_poopfile()
     args = setup_parser()
 

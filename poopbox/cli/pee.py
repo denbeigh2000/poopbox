@@ -1,11 +1,12 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import sys
 from typing import List, Text
 
 from poopbox.config.poopfile import find_and_parse_poopfile
 
-def main(args: List[Text]) -> None:
+def main(args):
+    # type: (List[Text]) -> None
     assert len(args) > 1, 'must provide commands to run!'
 
     target = find_and_parse_poopfile()

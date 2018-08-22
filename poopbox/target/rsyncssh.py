@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import logging
 from typing import Any, Dict, Iterable, Optional, List, Text
@@ -13,7 +13,8 @@ from poopbox.target import Target
 LOG = logging.getLogger('rsyncssh.py')
 
 class RSyncSSHTarget(Target):
-    def _run_on_configure(self, config: Dict[Any, Any]) -> None:
+    def _run_on_configure(self, config):
+        # type: (Dict[Any, Any]) -> None
         self.remote_host = config['remote_host']
         self.remote_dir = config['remote_dir']
 
@@ -24,7 +25,8 @@ class RSyncSSHTarget(Target):
         self._run = SSHRunTarget(self.remote_host, self.remote_dir)
         self._shell = SSHShellTarget(self.remote_host, self.remote_dir)
 
-    def run(self, argv: List[Text]) -> int:
+    def run(self, argv):
+        # type: (List[Text]) -> int
         """
         run executes the given command on the configured RunTarget
         """
@@ -43,11 +45,14 @@ class RSyncSSHTarget(Target):
         finally:
             self.pull()
 
-    def push(self, files: Optional[Iterable[Text]] = None) -> None:
+    def push(self, files=None):
+        # type: (Optional[Iterable[Text]]) -> None
         return self._sync.push(files)
 
-    def pull(self, files: Optional[Iterable[Text]] = None) -> None:
+    def pull(self, files=None):
+        # type: (Optional[Iterable[Text]]) -> None
         return self._sync.pull(files)
 
     def shell(self):
+        # type: () -> int
         return self._shell.shell()

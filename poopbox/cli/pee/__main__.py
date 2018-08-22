@@ -1,18 +1,20 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import logging
 import sys
 
 from poopbox.config.poopfile import find_and_parse_poopfile
 
-def setup_logging() -> None:
+def setup_logging():
+    # type: () -> None
     logger = logging.getLogger()
     handler = logging.StreamHandler()
     logger.setLevel(logging.WARNING)
     logger.addHandler(handler)
 
 
-def main() -> int:
+def main():
+    # type: () -> int
     setup_logging()
 
     args = list(sys.argv)

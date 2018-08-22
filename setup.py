@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from setuptools import setup
 
@@ -22,6 +22,9 @@ setup(
     },
     install_requires=[
         'paramiko==2.4',
+        'pathlib2==2.3.2',
         'pyyaml==3.13',
+        'subprocess32==3.5.2',
+        'typing',
     ]
 )

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from contextlib import contextmanager
 import logging
@@ -13,7 +13,8 @@ from poopbox.run.run import Command, RunTarget
 LOG = logging.getLogger('ssh.py')
 
 class SSHRunTarget(RunTarget):
-    def __init__(self, remote_host: Text, remote_dir: Text) -> None:
+    def __init__(self, remote_host, remote_dir):
+        # type: (Text, Text) -> None
         self.remote_dir = remote_dir
         self.remote_host = remote_host
 
@@ -31,7 +32,8 @@ class SSHRunTarget(RunTarget):
         LOG.info('disconnected from %s', self.remote_host)
 
 
-    def _run(self, argv: Command) -> int:
+    def _run(self, argv):
+        # type: (Command) -> int
         with self._session() as client:
             command = ['mkdir', '-p', self.remote_dir, '&&',
                         'cd', self.remote_dir, '&&'] + argv
