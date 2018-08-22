@@ -4,7 +4,7 @@ from contextlib import contextmanager
 import logging
 import sys
 import time
-from typing import Text, Tuple
+from typing import Optional, Dict, List, Text, Tuple
 
 from paramiko import SSHClient  # type: ignore
 
@@ -13,10 +13,11 @@ from poopbox.run.run import Command, RunTarget
 LOG = logging.getLogger('ssh.py')
 
 class SSHRunTarget(RunTarget):
-    def __init__(self, remote_host, remote_dir):
-        # type: (Text, Text) -> None
+    def __init__(self, remote_host, remote_dir, env=None):
+        # type: (Text, Text, Optional[Dict[Text, Text]]) -> None
         self.remote_dir = remote_dir
         self.remote_host = remote_host
+        self.env = env
 
     @contextmanager
     def _session(self):  # type: ignore
@@ -31,12 +32,24 @@ class SSHRunTarget(RunTarget):
         client.close()
         LOG.info('disconnected from %s', self.remote_host)
 
+    def _construct_env_commands(self):
+        # type: () -> List[Text]
+        if not self.env:
+            return []
+
+        args = []
+
+        for k, v in self.env.items():
+            args = args + ['export', '{}={}'.format(k, v), '&&']
+
+        return args
 
     def _run(self, argv):
         # type: (Command) -> int
         with self._session() as client:
+            env = self._construct_env_commands
             command = ['mkdir', '-p', self.remote_dir, '&&',
-                        'cd', self.remote_dir, '&&'] + argv
+                        'cd', self.remote_dir, '&&'] + env + argv
             cmd_str = ['bash', '-c', '"{}"'.format(' '.join(command))]
 
             LOG.info('executing %s on %s over ssh', argv, self.remote_host)
