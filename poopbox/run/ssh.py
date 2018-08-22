@@ -33,12 +33,12 @@ class SSHRunTarget(RunTarget):
 
     def _run(self, argv: Command) -> int:
         with self._session() as client:
+            command = ['mkdir', '-p', self.remote_dir, '&&',
+                        'cd', self.remote_dir, '&&'] + argv
+            cmd_str = ['sh', '-c', '"{}"'.format(' '.join(command))]
 
             LOG.info('executing %s on %s over ssh', argv, self.remote_host)
-            remote_cmd = 'mkdir -p {remote_dir} && cd {remote_dir} && {cmd}'.format(
-                remote_dir=self.remote_dir, cmd=' '.join(argv))
-            cmd = ['sh', '-c', '"{}"'.format(remote_cmd)]
-            code = self._run_paramiko_cmd(client, ' '.join(cmd))
+            code = self._run_paramiko_cmd(client, ' '.join(cmd_str))
 
         return code
 

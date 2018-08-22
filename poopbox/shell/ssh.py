@@ -10,7 +10,8 @@ class SSHShellTarget(ShellTarget):
         self.remote_dir = remote_dir
 
     def shell(self):
-        remote_args = ['cd', self.remote_dir, '&&', 'exec', '$SHELL', '-l']
+        remote_args = ['mkdir', '-p', self.remote_dir, '&&',  'cd',
+                self.remote_dir, '&&', 'exec', '$SHELL', '-l']
         args = ['ssh', '-t', self.remote_host, ' '.join(remote_args)]
         proc = subprocess.Popen(args, stdin=sys.stdin, stdout=sys.stdout,
                                 stderr=sys.stderr)
