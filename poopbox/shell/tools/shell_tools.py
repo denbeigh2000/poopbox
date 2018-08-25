@@ -2,15 +2,18 @@
 
 import functools
 
-def construct_pre_commands(cmds):
-    # type: (List[List[Text]]) -> List[Text]
+from poopbox.run.run import Command
+
+def chain_commands(cmds):
+    # type: (List[Command]) -> Command
+
     return functools.reduce(lambda l, cmd: l + cmd + ['&&'], cmds, [])
 
 
-def construct_env_commands(envs):
-    # type: (Dict[Text, Text]) -> List[Text]
+def create_env_commands(envs):
+    # type: (Dict[Text, Text]) -> List[Command]
 
-    return functools.reduce(
-        lambda l, env: l + ['export', '%s=%s' % env, '&&'],  # type: ignore
-        envs.items(), [])
-
+    return [
+        ['export', '%s="%s"' % (k, v)]
+        for k, v in envs.items()
+    ]

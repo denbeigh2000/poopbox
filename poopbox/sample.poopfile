@@ -3,6 +3,9 @@
 target: 'RSyncSSH'
 remote_dir: YOUR_REMOTE_DIRECTORY
 remote_host: YOUR_REMOTE_HOST
+pre_cmds:
+   - ['export', 'PATH="$PATH:$PWD/env/bin"']
+   - ['source', 'env/bin/activate']
 excludes:
   - env
   - .poopfile

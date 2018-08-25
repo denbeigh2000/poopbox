@@ -6,8 +6,8 @@ from typing import Text
 
 from poopbox.shell import ShellTarget
 from poopbox.shell.tools import (
-    construct_env_commands,
-    construct_pre_commands,
+    create_env_commands,
+    chain_commands,
 )
 
 class SSHShellTarget(ShellTarget):
@@ -30,9 +30,9 @@ class SSHShellTarget(ShellTarget):
         pre = []  # type: List[Text]
 
         if self.env:
-            env = construct_env_commands(self.env)
+            env = create_env_commands(self.env)
         if self.pre_cmds:
-            pre = construct_pre_commands(self.pre_cmds)
+            pre = chain_commands(self.pre_cmds)
 
         remote_args = ['mkdir', '-p', self.remote_dir, '&&',  'cd',
                 self.remote_dir, '&&'] + env + pre + ['exec', '$SHELL', '-l']
