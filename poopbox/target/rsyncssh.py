@@ -19,11 +19,13 @@ class RSyncSSHTarget(Target):
         self.remote_dir = config['remote_dir']
 
         excludes = config.get('excludes', None)
+        pre_cmds = config.get('pre_cmds', None)
+        env = config.get('env', None)
 
         self._sync = RSyncSyncTarget(self.poopdir,
                 self.remote_host, self.remote_dir, excludes)
-        self._run = SSHRunTarget(self.remote_host, self.remote_dir)
-        self._shell = SSHShellTarget(self.remote_host, self.remote_dir)
+        self._run = SSHRunTarget(self.remote_host, self.remote_dir, pre_cmds=pre_cmds, env=env)
+        self._shell = SSHShellTarget(self.remote_host, self.remote_dir, pre_cmds=pre_cmds, env=env)
 
     def run(self, argv):
         # type: (List[Text]) -> int

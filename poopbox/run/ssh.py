@@ -8,16 +8,26 @@ from typing import Optional, Dict, List, Text, Tuple
 
 from paramiko import SSHClient  # type: ignore
 
+from poopbox.shell.tools import (
+    construct_env_commands,
+    construct_pre_commands,
+)
 from poopbox.run.run import Command, RunTarget
 
 LOG = logging.getLogger('ssh.py')
 
 class SSHRunTarget(RunTarget):
-    def __init__(self, remote_host, remote_dir, env=None):
-        # type: (Text, Text, Optional[Dict[Text, Text]]) -> None
+    def __init__(self,
+            remote_host,    # type: Text
+            remote_dir,     # type: Text
+            pre_cmds=None,  # type: Optional[List[List[Text]]]
+            env=None,       # type: Optional[Dict[Text, Text]]
+            ):
+        # type: (...) -> None
         self.remote_dir = remote_dir
         self.remote_host = remote_host
         self.env = env
+        self.pre_cmds = pre_cmds
 
     @contextmanager
     def _session(self):  # type: ignore
@@ -32,25 +42,21 @@ class SSHRunTarget(RunTarget):
         client.close()
         LOG.info('disconnected from %s', self.remote_host)
 
-    def _construct_env_commands(self):
-        # type: () -> List[Text]
-        if not self.env:
-            return []
-
-        args = []
-
-        for k, v in self.env.items():
-            args = args + ['export', '{}={}'.format(k, v), '&&']
-
-        return args
-
     def _run(self, argv):
         # type: (Command) -> int
         with self._session() as client:
-            env = self._construct_env_commands
+            env = []  # type: List[Text]
+            pre = []  # type: List[Text]
+
+            if self.env:
+                env = construct_env_commands(self.env)
+            if self.pre_cmds:
+                pre = construct_pre_commands(self.pre_cmds)
+
             command = ['mkdir', '-p', self.remote_dir, '&&',
-                        'cd', self.remote_dir, '&&'] + env + argv
-            cmd_str = ['bash', '-c', '"{}"'.format(' '.join(command))]
+                       'cd', self.remote_dir, '&&'] + env + pre + argv
+            cmd_str = ['bash', '--rcfile', '/dev/null',
+                       '-c', '"{}"'.format(' '.join(command))]
 
             LOG.info('executing %s on %s over ssh', argv, self.remote_host)
             code = self._run_paramiko_cmd(client, ' '.join(cmd_str))
