@@ -2,7 +2,7 @@
 
 import functools
 
-from poopbox.run.run import Command
+from poopbox.types import Command
 
 def chain_commands(cmds):
     # type: (List[Command]) -> Command

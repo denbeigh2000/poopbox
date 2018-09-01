@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
+from contextlib import contextmanager
+import logging
 import sys
 
 from paramiko import SSHClient  # type: ignore
 
 from .ssh_executor import SSHExecutor
-from poopbox.run.run import Command
+from poopbox.types import Command
 
 LOG = logging.getLogger(__file__)
 

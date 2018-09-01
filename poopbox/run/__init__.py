@@ -1,3 +1,3 @@
 #!/usr/bin/env python
 
-from .run import RunError, RunTarget, Command
+from .run import RunError, RunTarget

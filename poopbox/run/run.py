@@ -3,10 +3,10 @@
 import logging
 from typing import List, Text, Tuple
 
+from poopbox.types import Command
+
 LOG = logging.getLogger('run.py')
 LOG.setLevel(logging.INFO)
-
-Command = List[Text]
 
 class RunError(Exception):
     pass

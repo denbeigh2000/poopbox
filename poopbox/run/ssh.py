@@ -6,12 +6,13 @@ import subprocess
 import time
 from typing import Optional, Dict, List, Text, Tuple
 
+from poopbox.run import RunTarget
 from poopbox.shell.tools import (
     create_env_commands,
     chain_commands,
 )
-from poopbox.run.run import Command, RunTarget
-from poopbox.run.ssh_executors.subprocess import SubprocessSSHExecutor
+from poopbox.ssh.executors import SubprocessSSHExecutor
+from poopbox.types import Command
 
 LOG = logging.getLogger(__file__)
 
