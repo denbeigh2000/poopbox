@@ -33,12 +33,18 @@
          files to rsync through stdin. Use [SIGSTOP/SIGCONT](https://github.com/axkibe/lsyncd/issues/432#issuecomment-294343687)?
 
 ### Perf ideas
- - [ ] Persist an SSH session to run commands with
-   - [ ] Keeps an initialised shell in a detached process
-   - [ ] Create hidden files in the root directory, pipe stdin/stdout/stderr through them
-   - [ ] Attach to files when running next command
-   - [ ] Recreate ssh connection if timed out/dead (keep pidfile)
-   - [ ] We must do intelligent handling to nicely display I/O to the user
-     - [ ] intercept stream, looking for sentinel chars?
  - [ ] Use controlmasters
  - [ ] Minimise file changes by recording sync time by [modifying file](https://stackoverflow.com/a/8986162)
+ - [ ] `poopd` daemon to manage a remote work session
+     - [ ] `poopd` cli tool, and associated Target
+     - [ ] Manages forked processes
+         - [ ] Starts tmux window in remote directory over SSH
+            - [ ] Made in remote directory
+            - [ ] Runs on individual remote sockfile
+            - [ ] Connections made to remote tmux with [libtmux](http://libtmux.git-pull.com/en/stable/) when running
+                    remote commands
+             - [ ] Need to gracefully handle connection failure
+         - [ ] Forks long-lived SSH session to forward local sockfile to remote
+         - [ ] Forks long-lived lsyncd process
+             - [ ] Generate config file from YAML
+             - [ ] Ability to let user specify custom lsyncd config file?
