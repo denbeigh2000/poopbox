@@ -3,6 +3,7 @@
 from contextlib import contextmanager
 import logging
 import subprocess
+import sys
 import time
 from typing import Optional, Dict, List, Text, Tuple
 
@@ -11,7 +12,7 @@ from poopbox.shell.tools import (
     create_env_commands,
     chain_commands,
 )
-from poopbox.ssh.executors import SubprocessSSHExecutor
+from poopbox.ssh import SSHTooling
 from poopbox.types import Command
 
 LOG = logging.getLogger(__file__)
@@ -22,6 +23,7 @@ class SSHRunTarget(RunTarget):
             remote_dir,     # type: Text
             pre_cmds=None,  # type: Optional[List[Command]]
             env=None,       # type: Optional[Dict[Text, Text]]
+            options=None,   # type: Optional[Options]
             ):
         # type: (...) -> None
         self.remote_dir = remote_dir
@@ -29,15 +31,24 @@ class SSHRunTarget(RunTarget):
         self.env = env
         self.pre_cmds = pre_cmds
 
-        # self._ssh = ParamikoSSHExecutor(self.remote_host)
-        self._ssh = SubprocessSSHExecutor(self.remote_host)
+        self._ssh_tooling = SSHTooling(self.remote_host)
 
     def _run(self, argv):
         # type: (Command) -> int
 
         cmd = self._create_cmd(argv)
         LOG.info('executing %s on %s over ssh', argv, self.remote_host)
-        return self._ssh.run_over_ssh(cmd)
+
+        cmd_str = ' '.join(cmd)
+        LOG.debug(cmd_str)
+
+        args = self._ssh_tooling.form_command(cmd_str)
+        proc = subprocess.Popen(args, stdin=sys.stdin, stdout=sys.stdout,
+                                stderr=sys.stderr)
+        sys.stdin.flush()
+        proc.wait()
+
+        return proc.returncode
 
     def _create_cmd(self, argv):
         # type: (Command) -> Command

@@ -26,11 +26,11 @@ def configure_pushpull(is_push, parser):  # type: ignore
     sparser.add_argument('files', nargs='*', default=None, help='files to be transferred')
     sparser.set_defaults(func=go)
 
-def handle_shell(target, args):
+def handle_shell(target):
     # type: () -> int
     return target.shell()
 
-def handle_sync(target, args):
+def handle_sync(target):
     # type: () -> None
     target.sync()
 
@@ -60,7 +60,7 @@ def main():
     target = find_and_parse_poopfile()
     args = setup_parser()
 
-    args.func(target, args)
+    args.func(target)
 
     return 0
 

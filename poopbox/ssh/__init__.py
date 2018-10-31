@@ -1,3 +1,3 @@
 #!/usr/bin/env python
 
-from .ssh_executor import SSHExecutor
+from .tooling import SSHTooling

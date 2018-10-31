@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+import os
 import sys
 from typing import Dict, Any, Iterable, List, Optional, Text
 
@@ -12,7 +13,12 @@ class Target():
     def __init__(self, poopdir):
         # type: (Text) -> None
         self.poopdir = format_dir(poopdir)
+        self.cachedir_name = '.poopbox'
+        self.cachedir = os.path.join(self.poopdir, self.cachedir_name)
         self.configured = False
+
+        if not os.path.isdir(self.cachedir):
+            os.mkdir(self.cachedir)
 
     def _run_on_configure(self, config):
         # type: (Dict[Any, Any]) -> None
