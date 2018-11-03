@@ -11,7 +11,7 @@ setup(
               'poopbox.cli.poopbox',
               'poopbox.cli.pee',
               'poopbox.config',
-              'poopbox.dir_utils',
+              'poopbox.utils',
              ],
     entry_points={
         'console_scripts': [

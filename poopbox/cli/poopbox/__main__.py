@@ -5,6 +5,9 @@ import logging
 
 from poopbox.config.poopfile import find_and_parse_poopfile
 from poopbox.target import Target
+from poopbox.shell import ShellTarget
+from poopbox.sync import SyncTarget
+from poopbox.utils import PoopboxCLI
 
 def setup_logging():
     # type: () -> None
@@ -26,43 +29,34 @@ def configure_pushpull(is_push, parser):  # type: ignore
     sparser.add_argument('files', nargs='*', default=None, help='files to be transferred')
     sparser.set_defaults(func=go)
 
-def handle_shell(target):
-    # type: () -> int
+def handle_shell(target, _):
+    # type: (ShellTarget, Any) -> int
     return target.shell()
 
-def handle_sync(target):
-    # type: () -> None
-    target.sync()
+class Poopbox(PoopboxCLI):
+    """A remote development control centre"""
+    def _update_parser(self, parser):
+        subparsers = parser.add_subparsers()
 
-def setup_parser():
-    # type: () -> argparse.Namespace
-    parser = argparse.ArgumentParser(prog='poopbox')
-    subparsers = parser.add_subparsers()
+        shell_parser = subparsers.add_parser('shell',
+                help='Open an interactive shell in your remote build directory')
+        shell_parser.set_defaults(func=handle_shell)
 
-    shell_parser = subparsers.add_parser('shell',
-            help='Open an interactive shell in your remote build directory')
-    shell_parser.set_defaults(func=handle_shell)
+        ssh_parser = subparsers.add_parser('ssh', help='alias of "shell"')
+        ssh_parser.set_defaults(func=handle_shell)
 
-    ssh_parser = subparsers.add_parser('ssh', help='alias of "shell"')
-    ssh_parser.set_defaults(func=handle_shell)
+        configure_pushpull(True, subparsers)
+        configure_pushpull(False, subparsers)
 
-    shell_parser = subparsers.add_parser('sync', help='Synchronise any changes between your '
-                                         'local and remote environments')
-    shell_parser.set_defaults(func=handle_sync)
+    def _main(self, args):
+        target = find_and_parse_poopfile()
+        args.func(target, args)
 
-    configure_pushpull(True, subparsers)
-    configure_pushpull(False, subparsers)
-
-    return parser.parse_args()
+        return 0
 
 def main():
-    # type: () -> int
-    target = find_and_parse_poopfile()
-    args = setup_parser()
-
-    args.func(target)
-
-    return 0
+    # type: () -> None
+    Poopbox(prog='poopbox').main()
 
 if __name__ == '__main__':
     main()
