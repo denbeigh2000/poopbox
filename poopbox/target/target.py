@@ -5,7 +5,7 @@ import os
 import sys
 from typing import Dict, Any, Iterable, List, Optional, Text
 
-from poopbox.dir_utils import format_dir
+from poopbox.utils import format_dir
 
 LOG = logging.getLogger('poopbox.py')
 
@@ -66,10 +66,3 @@ class Target():
         shell starts an interactive shell on the remote workstation
         """
         raise NotImplementedError('shell() must be implemented')
-
-    def sync(self):
-        # type: () -> None
-        """
-        sync performs a push then pull with the remote workstration
-        """
-        raise NotImplementedError('sync() must be implemented')

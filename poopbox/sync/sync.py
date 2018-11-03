@@ -4,7 +4,7 @@ from contextlib import contextmanager
 import logging
 from typing import Iterable, List, Optional, Text
 
-from poopbox.dir_utils import format_dir
+from poopbox.utils import format_dir
 
 LOG = logging.getLogger('sync.py')
 

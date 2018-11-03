@@ -13,7 +13,7 @@ from poopbox.run import RunError
 from poopbox.run.targets import SSHRunTarget
 from poopbox.shell.targets import SSHShellTarget
 from poopbox.ssh import SSHTooling
-from poopbox.sync import SyncError
+from poopbox.sync import DEFAULT_EXCLUDES, SyncError
 from poopbox.sync.targets import RSyncSyncTarget
 from poopbox.target import Target
 
@@ -27,7 +27,7 @@ class RSyncSSHTarget(Target):
         self.remote_host = config['remote_host']
         self.remote_dir = config['remote_dir']
 
-        excludes = config.get('excludes', None)
+        excludes = set(config.get('excludes', []) + DEFAULT_EXCLUDES)
         pre_cmds = config.get('pre_cmds', None)
         env = config.get('env', None)
 

@@ -19,7 +19,7 @@ LOG = logging.getLogger('rsync.py')
 
 class RSyncSyncTarget(SyncTarget):
     def _push(self, files=None, syncfile=None):
-        # type: (Optional[Iterable[Text]]) -> None
+        # type: (Optional[Iterable[Text]], Optional[Text]) -> None
         if files is not None and syncfile is not None:
             LOG.warning('received both a list of files and a syncfile - ignoring syncfile')
             syncfile = None
@@ -86,20 +86,30 @@ class RSyncSyncTarget(SyncTarget):
 
     @staticmethod
     def _make_cmd_syncfile(srcdir, sink, syncfile, excl=None):
-        # type: (Text, Text, Text) -> List[Text]
+        # type: (Text, Text, Text, Optional[Iterable[Text]]) -> List[Text]
+        """
+        A slightly faster version of _make_cmd. Finds files newer than syncfile
+        using unix find and pipes that to rsync instead. Should only be used with
+        """
         excludes = RSyncSyncTarget._format_excludes(excl)
 
-        return [
-            'find', srcdir, '-newer', syncfile, '-printf', r'%P\\0', '|',
-            'rsync', '-a', '--delete'] + excludes + ['--files-from=-',
-            '--from0', srcdir, sink
-        ]
+        return (
+            # find files newer than the syncfile we made before we did the
+            # remote operation
+            ['find', srcdir, '-newer', syncfile, '-printf', r'%P\\0', '|',
+            # --ignore-times because we've just filtered these files ourselves.
+            'rsync', '-a', '--delete', '--ignore-times', '--force'] + excludes +
+            ['--files-from=-', '--from0', srcdir, sink]
+        )
 
     @staticmethod
     def _make_cmd(srcs, sink, files=None, excl=None):
         # type: (Iterable[Text], Text, Optional[Iterable[Text]]) -> List[Text]
         excludes = RSyncSyncTarget._format_excludes(excl)
-        return ['rsync', '--ignore-missing-args', '-a', '--delete'] + excludes + list(srcs) + [sink]
+        return (
+            ['rsync', '--ignore-missing-args', '-a', '--delete', '--force'] +
+            excludes + list(srcs) + [sink]
+        )
 
     @staticmethod
     def _join_srcs(dir_, files=None):
