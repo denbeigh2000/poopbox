@@ -1,3 +1,7 @@
+# Poopbox-specific
+.poopfile
+.poopbox/
+
 # Created by https://www.gitignore.io/api/vim,python
 
 ### Python ###
