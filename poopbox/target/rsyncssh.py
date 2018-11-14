@@ -100,9 +100,13 @@ class RSyncSSHTarget(Target):
             LOG.warning('Received error while touching syncfile, continuing', e)
 
     def _touch_remote_syncfile(self):
-        remote_cmd = ['rm', '-f', self.remote_syncfile + ';', 'touch', self.remote_syncfile]
+        maybe_make_cachedir = ['([[', '-d', self.remote_cachedir, ']]',
+                '||', 'rm', '-f', self.remote_syncfile,
+                '&&', 'mkdir', '-p', self.remote_cachedir + ')']
+
+        remote_cmd = maybe_make_cachedir + [ '&&', 'touch', self.remote_syncfile]
         inner_cmd = ' '.join(remote_cmd)
-        cmd = self._ssh_tooling.form_command(' '.join(['sh', '-c', "'" + inner_cmd + "'"]))
+        cmd = self._ssh_tooling.form_command(' '.join(['bash', '-c', "'" + inner_cmd + "'"]))
         LOG.debug(cmd)
         subprocess.run(cmd, stdout=sys.stdout, stderr=sys.stderr)
 
