@@ -1,11 +1,17 @@
 # vi:syntax=yaml
 
 target: 'RSyncSSH'
+# Change these to a ssh-able remote [user@]host/directory where
+# the remote execution will be performed. The remote directory
+# will be created if it does not exist (if the user has
+# permissions)
 remote_dir: YOUR_REMOTE_DIRECTORY
 remote_host: YOUR_REMOTE_HOST
+# These commands will be run immediately after sync, they should
+# perform any local initialisation required to run things (if any)
 pre_cmds:
-   - ['export', 'PATH="$PATH:$PWD/env/bin"']
    - ['source', 'env/bin/activate']
+# These files will be excluded from sync in any direction
 excludes:
   - env
   - .poopfile

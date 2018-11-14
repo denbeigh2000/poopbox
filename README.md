@@ -9,20 +9,18 @@ file in the root of your home directory.
 
 ## Quickstart
 ```
-$ cp poopbox/sample.poopfile $MY_REPOSITORY_ROOT/.poopfile
+$ cp poopbox/sample.poopfile $MY_REPOSITORY/.poopfile
 
 # update your remote host and build directory
 $ cd $MY_REPOSITORY/ && vim .poopfile
 
-# make sure your machine is sshable and has a valid directory
-$ ssh YOUR_REMOTE_HOST mkdir -p YOUR REMOTE_DIRECTORY
-
 # write code
-$ vim mycode.py
+$ vim myproject/mycode.py
 
-# execute commands remotely!
-$ p python test_my_code.py
+# execute commands remotely
+$ p python setup.py develop
+$ p pytest myproject
 
-# open an interactive shell!
+# open an interactive shell
 $ poopbox shell
 ```
