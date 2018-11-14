@@ -124,8 +124,8 @@ class RSyncSSHTarget(Target):
             file_test, '&&',
             'find', self.remote_dir,
                 '-newer', self.remote_syncfile,
-                '-printf', r'%f\\n',
                 '!', '-path', self.remote_dir,
+                '-print',
         ])
 
         return self._ssh_tooling.form_command(' '.join(['bash', '-c', "'" + inner_cmd + "'"]))

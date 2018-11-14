@@ -39,24 +39,17 @@ class RSyncSyncTarget(SyncTarget):
 
         return self._exec(cmd)
 
-    def _pull(self, files=None, syncfile=None):
+    def _pull(self, files=None):
         # type: (Optional[Iterable[Text]], Optional[Text]) -> int
         sink = self.poopdir
-        if syncfile is not None:
-            LOG.debug('making syncfile cmd')
-            cmd = RSyncSyncTarget._make_cmd_syncfile(self.remote_dir, sink,
-                    self.syncfile, self.excludes)
-        else:
-            srcs = [
-                '{}:{}'.format(self.remote_host, src)
-                for src in self._join_srcs(self.remote_dir, files)
-            ]
-            LOG.debug('making explicit', files)
-            cmd = RSyncSyncTarget._make_cmd(self.poopdir, sink, srcs,
-                    self.excludes)
+        srcs = (['{}:{}'.format(self.remote_host, self.remote_dir)]
+                if files is None else
+                ['{}:{}'.format(self.remote_host, src)
+                 for src in self._join_srcs(self.remote_dir, files)])
+
+        LOG.debug('pulling %s', files)
 
         cmd = self._make_cmd(srcs, sink, files, self.excludes)
-
         return self._exec(cmd)
 
     @staticmethod
@@ -96,7 +89,7 @@ class RSyncSyncTarget(SyncTarget):
         return (
             # find files newer than the syncfile we made before we did the
             # remote operation
-            ['find', srcdir, '-newer', syncfile, '-printf', r'%P\\0', '|',
+            ['find', srcdir, '-newer', syncfile, '-print0', '|',
             # --ignore-times because we've just filtered these files ourselves.
             'rsync', '-a', '--delete', '--ignore-times', '--force'] + excludes +
             ['--files-from=-', '--from0', srcdir, sink]
