@@ -17,7 +17,11 @@
     - `poopbox config` -> get and set config options
 
 ## Should do
- - [ ] Move transient operational files to .poopbox folder
+ - [ ] Hook interface and loading
+    - [ ] Python virtualenv/setup.py hook
+    - [ ] Go GOPATH/dep hook
+    - [ ] Ruby/RVM hook? (i don't know much about ruby dev)
+ - [ ] CLI flag to skip arguments
  - [ ] File lock
    - [ ] Sync operations
    - [ ] Interactive shell
