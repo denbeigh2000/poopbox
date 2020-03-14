@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='poopbox',
-    version='0.0dev',
+    version='0.1.0',
     packages=['poopbox',
               'poopbox.run',
               'poopbox.sync',
@@ -22,7 +22,7 @@ setup(
     },
     install_requires=[
         'pathlib2==2.3.2',
-        'pyyaml==3.13',
+        'pyyaml>=4.2b1,<5.0',
         'subprocess32==3.5.2',
         'typing',
     ]
